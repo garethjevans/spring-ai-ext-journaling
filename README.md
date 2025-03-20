@@ -1,6 +1,6 @@
-# spring-ai-ext-sql-function-adapter
+# spring-ai-ext-journaling
 
-A test project for the sql-function-adapter component.
+A test project for the journaling component.
 
 ## Prerequisites
 
@@ -13,6 +13,4 @@ You'll need to have the following:
 
 ## Run the application
 
-`./mvnw spring-boot:run`
-
-This will run a local MCP server
+`./mvnw clean test`

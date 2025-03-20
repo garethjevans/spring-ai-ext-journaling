@@ -1,0 +1,20 @@
+server:
+  port: 10091
+
+spring:
+  application:
+    name: spring-ai-ext-journaling
+
+  datasource:
+    driver-class-name: org.postgresql.Driver
+    url: jdbc:postgresql://localhost:15432/journaling
+    username: postgres
+    password: password
+
+  ai:
+    openai:
+      api-key: ${OPENAI_KEY}
+      chat:
+        # use a proxy to log all calls
+        # base-url: http://localhost:9092
+      base-url: https://api.openai.com
