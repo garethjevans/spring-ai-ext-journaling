@@ -3,14 +3,13 @@ package com.vmware.tanzu.adapter;
 import com.vmware.tanzu.ai.journal.JournalService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.ai.chat.client.ChatClientRequest;
+import org.springframework.ai.chat.client.ChatClientResponse;
 import org.springframework.ai.chat.client.advisor.api.*;
 
-import java.util.List;
 import java.util.Map;
-import java.util.UUID;
-import java.util.function.Consumer;
 
-public class JournalServiceAdvisor implements CallAroundAdvisor {
+public class JournalServiceAdvisor implements CallAdvisor {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(JournalServiceAdvisor.class);
 
@@ -19,7 +18,6 @@ public class JournalServiceAdvisor implements CallAroundAdvisor {
     public JournalServiceAdvisor(JournalService journalService) {
         this.journalService = journalService;
     }
-
 
     @Override
     public String getName() {
@@ -32,19 +30,19 @@ public class JournalServiceAdvisor implements CallAroundAdvisor {
     }
 
     @Override
-    public AdvisedResponse aroundCall(AdvisedRequest advisedRequest, CallAroundAdvisorChain chain) {
-        LOGGER.info(">>> request: {}", advisedRequest);
+    public ChatClientResponse adviseCall(ChatClientRequest request, CallAdvisorChain chain) {
+        LOGGER.info(">>> request: {}", request);
 
         String journalId = journalService.initializeEntry(Map.of());
-        String model = advisedRequest.chatModel().getClass().getName();
+        String model = request.prompt().getOptions().getModel();
 
-        journalService.journalRequest(journalId, model, advisedRequest.userText());
+        journalService.journalRequest(journalId, model, request.prompt().getContents());
 
-        AdvisedResponse advisedResponse = chain.nextAroundCall(advisedRequest);
-        LOGGER.info("<<< response: {}", advisedResponse);
+        ChatClientResponse response = chain.nextCall(request);
+        LOGGER.info("<<< response: {}", response);
 
-        journalService.journalResponse(journalId, model, advisedResponse.response().getResult().getOutput().getText());
+        journalService.journalResponse(journalId, model, response.chatResponse().getResult().getOutput().getText());
 
-        return advisedResponse;
+        return response;
     }
 }
